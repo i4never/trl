@@ -44,13 +44,13 @@ class DPOTrainerTester(unittest.TestCase):
         # fmt: off
         dummy_dataset_dict = {
             "prompt": [
-                "hello",
-                "how are you",
-                "What is your name?",
-                "What is your name?",
-                "Which is the best programming language?",
-                "Which is the best programming language?",
-                "Which is the best programming language?",
+                "hello\n",
+                "how are you\n",
+                "What is your name?\n",
+                "What is your name?\n",
+                "Which is the best programming language?\n",
+                "Which is the best programming language?\n",
+                "Which is the best programming language?\n",
             ],
             "chosen": [
                 "hi nice to meet you",
@@ -74,8 +74,8 @@ class DPOTrainerTester(unittest.TestCase):
         # fmt: on
         return Dataset.from_dict(dummy_dataset_dict)
 
-    @parameterized.expand([["gpt2", "sigmoid"], ["t5", "hinge"]])
-    def test_dpo_trainer(self, name, loss_type):
+    @parameterized.expand([["gpt2", "sigmoid", True], ["t5", "hinge", False]])
+    def test_dpo_trainer(self, name, loss_type, pre_compute):
         with tempfile.TemporaryDirectory() as tmp_dir:
             training_args = TrainingArguments(
                 output_dir=tmp_dir,
@@ -107,6 +107,7 @@ class DPOTrainerTester(unittest.TestCase):
                 tokenizer=tokenizer,
                 train_dataset=dummy_dataset,
                 eval_dataset=dummy_dataset,
+                precompute_ref_log_probs=pre_compute,
             )
 
             previous_trainable_params = {n: param.clone() for n, param in trainer.model.named_parameters()}
